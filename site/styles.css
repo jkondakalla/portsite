@@ -373,3 +373,5 @@ img,svg{max-width:100%}
 .msg.todo .mlab{color:var(--mut)}
 .msg.bad.todo{color:var(--rule)}
 .ctl dd a{display:block;min-height:24px;padding:2px 0;width:max-content;max-width:100%}
+/* The accent shift re-styles every element each frame. Phones and tablets keep the gradient, still. */
+@media (max-width:960px),(pointer:coarse){:root{animation:none}}

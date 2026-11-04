@@ -10,9 +10,10 @@ const { server, url } = await start();
 mkdirSync('out', { recursive: true });
 const chrome = await chromeLauncher.launch({ chromePath: chromium.executablePath(), chromeFlags: ['--headless=new', '--no-sandbox'] });
 let bad = 0;
+const GATED = ['performance', 'accessibility', 'best-practices', 'seo'];
 for (const preset of ['mobile', 'desktop']) {
   const config = preset === 'desktop' ? (await import('lighthouse/core/config/desktop-config.js')).default : undefined;
-  const r = await lighthouse(url, { port: chrome.port, output: 'html', logLevel: 'error' }, config);
+  const r = await lighthouse(url, { port: chrome.port, output: 'html', logLevel: 'error', onlyCategories: GATED }, config);
   writeFileSync(`out/lighthouse-${preset}.html`, r.report);
   const cats = r.lhr.categories;
   const line = Object.values(cats).map((c) => `${c.title} ${Math.round(c.score * 100)}`).join(' · ');
