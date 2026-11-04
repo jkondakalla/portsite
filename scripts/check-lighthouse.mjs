@@ -1,0 +1,27 @@
+// Lighthouse (mobile and desktop) against the local server. Fails if any category scores below 95.
+// Reports go to out/lighthouse-*.html (gitignored).
+import lighthouse from 'lighthouse';
+import * as chromeLauncher from 'chrome-launcher';
+import { chromium } from 'playwright';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { start } from './serve.mjs';
+
+const { server, url } = await start();
+mkdirSync('out', { recursive: true });
+const chrome = await chromeLauncher.launch({ chromePath: chromium.executablePath(), chromeFlags: ['--headless=new', '--no-sandbox'] });
+let bad = 0;
+for (const preset of ['mobile', 'desktop']) {
+  const config = preset === 'desktop' ? (await import('lighthouse/core/config/desktop-config.js')).default : undefined;
+  const r = await lighthouse(url, { port: chrome.port, output: 'html', logLevel: 'error' }, config);
+  writeFileSync(`out/lighthouse-${preset}.html`, r.report);
+  const cats = r.lhr.categories;
+  const line = Object.values(cats).map((c) => `${c.title} ${Math.round(c.score * 100)}`).join(' · ');
+  console.log(`${preset}: ${line}`);
+  for (const c of Object.values(cats)) if (c.score < 0.95) { bad++; console.error(`  FAIL ${preset} ${c.title} ${Math.round(c.score * 100)}`); }
+  for (const a of Object.values(r.lhr.audits)) if (a.score !== null && a.score < 0.9 && a.scoreDisplayMode !== 'informative' && a.scoreDisplayMode !== 'manual') console.log(`    note ${a.id}: ${a.title} ${a.displayValue || ''}`);
+  const m = r.lhr.audits;
+  console.log(`    LCP ${m['largest-contentful-paint'].displayValue} · CLS ${m['cumulative-layout-shift'].displayValue} · TBT ${m['total-blocking-time'].displayValue}`);
+}
+await chrome.kill();
+server.close();
+process.exit(bad ? 1 : 0);

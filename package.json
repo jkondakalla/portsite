@@ -1,0 +1,20 @@
+{
+  "name": "jag-portfolio",
+  "private": true,
+  "description": "Static portfolio site. The site in site/ has no runtime dependencies; these are verification tools only.",
+  "type": "module",
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "check:page": "node scripts/check-page.mjs",
+    "check:lighthouse": "node scripts/check-lighthouse.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "check": "npm run check:links && npm run check:page && npm run check:lighthouse"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "chrome-launcher": "1.2.2",
+    "lighthouse": "13.5.0",
+    "playwright": "1.64.1"
+  }
+}

@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jag Kondakalla</title>
+<meta name="description" content="Jag Kondakalla: IT audit, IT support and GRC candidate. jkOS, a self-hosted app suite with single sign-on, an audit log and controlled deployments, each control enforced in code and proved by a test.">
+<meta name="theme-color" content="#0C1214">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://jaaggruthkondakalla.com/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Jag Kondakalla">
+<meta property="og:description" content="Access control and audit logging, enforced in code and proved by tests.">
+<meta property="og:url" content="https://jaaggruthkondakalla.com/">
+<link rel="preload" href="fonts/libre-caslon-text-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/mrs-saint-delafield-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<nav class="wrap tabs" aria-label="Sections">
+  <a class="tab" href="#jkos">jkOS</a>
+  <a class="tab t1" href="#projects">Projects</a>
+  <a class="tab t2" href="#experience">Experience</a>
+  <a class="tab t1" href="#contact">Contact</a>
+  <span class="sp"></span>
+  <a class="btn" href="Jag_Kondakalla_Resume.pdf">Resume PDF</a>
+</nav>
+
+<main id="main">
+
+<!-- ================= HERO ================= -->
+<header class="wrap hero g12">
+  <div class="h-v" aria-hidden="true"><span class="vlab">IT audit · IT support · GRC</span></div>
+  <div class="h-main">
+    <h1 class="script h-name">Jag Kondakalla</h1>
+    <p class="h-line">I build systems where access control and audit logging are enforced in code and proved by tests.</p>
+  </div>
+  <aside class="h-card" aria-label="Summary">
+    <dl>
+      <dt>Looking for</dt><dd>IT audit, IT support and GRC roles</dd>
+      <dt>Education</dt><dd>B.S. Accounting, Western Governors University, 2026</dd>
+      <dt>Experience</dt><dd>Business Application Support Intern, IAT Insurance Group, 2025</dd>
+      <dt>Location</dt><dd>Aurora, IL</dd>
+    </dl>
+    <div class="h-links">
+      <a class="btn" href="https://github.com/jkondakalla">GitHub</a>
+      <a class="btn" href="Jag_Kondakalla_Resume.pdf">Resume PDF</a>
+      <a class="btn on" href="mailto:jaaggruthos@gmail.com">Email</a>
+    </div>
+  </aside>
+</header>
+
+<!-- ================= jkOS ================= -->
+<section class="wrap sect g12" id="jkos" aria-labelledby="jkos-h">
+  <div class="jk-a">
+    <div class="jk-sq" aria-hidden="true"></div>
+    <h2 class="jk-word" id="jkos-h">jkOS</h2>
+  </div>
+  <div class="jk-b">
+    <p class="lead">jkOS is a self-hosted suite of web apps on TrueNAS SCALE: a portal, single sign-on, tasks and calendar, music and audiobooks, and a deploy console. It runs in Docker behind nginx with TLS, with separate staging and production.</p>
+    <p class="lead">Each security control is enforced in code and covered by a test. The three sections below show how sign-in, the audit log and deployments work.</p>
+    <ul class="idx">
+      <li><span class="n">01</span><span>ORDECK</span><span class="k">portal</span></li>
+      <li><span class="n">02</span><span>jkAuth</span><span class="k">single sign-on, audit log</span></li>
+      <li><span class="n">03</span><span>BeigeBoard</span><span class="k">tasks, goals, calendar</span></li>
+      <li><span class="n">04</span><span>KourOS</span><span class="k">music, audiobooks</span></li>
+      <li><span class="n">05</span><span>jkDeploy</span><span class="k">deploy console</span></li>
+      <li><span class="n">host</span><span>TrueNAS SCALE · Docker · nginx with TLS</span><span class="k">server</span></li>
+    </ul>
+    <div class="cta"><a class="btn" href="https://github.com/jkondakalla/jkOS">jkOS on GitHub</a></div>
+  </div>
+</section>
+
+<!-- ================= SINGLE SIGN-ON ================= -->
+<section class="wrap exh" id="sso" aria-labelledby="sso-h">
+  <div class="exh-head">
+    <div><div class="lbl">jkOS · jkAuth</div><h2 id="sso-h">Single sign-on and sessions</h2></div>
+  </div>
+  <div class="g12">
+    <div class="strip s-l" aria-hidden="true"><span class="vlab">Sign-in and sessions</span></div>
+    <div class="arch a-l" data-widget="sso">
+      <div class="ahead"><span class="lbl">How it works · step through</span><span class="lbl">RS256 · audience · 15 min · rotation</span></div>
+      <ol class="fb" data-lanes="You|browser;jkAuth|signs tokens;App|e.g. BeigeBoard;Attacker|stolen token">
+        <li data-from="0" data-to="1" data-label="Sign in"><b>You to jkAuth: sign in</b>You sign in once, at jkAuth.</li>
+        <li data-from="1" data-to="0" data-label="Access + refresh token"><b>jkAuth to you: access token and refresh token</b>jkAuth signs the access token with RS256. The private key never leaves jkAuth.</li>
+        <li data-from="0" data-to="2" data-label="Request with token"><b>You to the app: request with the access token</b>The browser sends the access token to an app.</li>
+        <li data-from="2" data-to="2" data-label="Check signature + audience"><b>The app checks the token</b>The app verifies the signature with jkAuth's public key, then checks the issuer, the expiry and that the token names this app.</li>
+        <li data-from="2" data-to="2" data-label="Expires in 15 min"><b>The access token expires</b>The access token is valid for 15 minutes.</li>
+        <li data-from="0" data-to="1" data-label="Refresh"><b>You to jkAuth: refresh</b>Refreshing returns new tokens. The old refresh token is retired and can't be used again.</li>
+        <li class="atk" data-from="3" data-to="1" data-label="Replay old refresh token" data-attack><b>Attacker to jkAuth: replay the old refresh token</b>Someone presents a refresh token that was already used.</li>
+        <li class="atk" data-from="1" data-to="1" data-label="Revoke the session" data-attack data-revoke><b>jkAuth revokes the session</b>jkAuth revokes every token from that sign-in and logs a refresh_reuse event. The session rows stay, marked reuse.</li>
+        <li class="atk" data-from="1" data-to="3" data-label="Rejected" data-attack><b>jkAuth to attacker: rejected</b>The attacker is rejected. You sign in again.</li>
+      </ol>
+    </div>
+    <div class="txt t-l">
+      <ol>
+        <li>jkAuth signs tokens with RS256. The private key stays in jkAuth, and other apps verify with the public key. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js">tokens.js</a></li>
+        <li>Each token lists the apps it is valid for, and an app rejects a token meant for another app. Node backends refuse to start in production without this check. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/packages/weave/src/server/auth.js">auth.js</a></li>
+        <li>Access tokens expire after 15 minutes. Refresh tokens rotate on every use, and reusing an old one revokes the whole session. Sessions also have a maximum lifetime. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js">tokens.js</a></li>
+        <li>Revoked sessions are kept with a reason (logout, reuse or absolute_timeout), not deleted. Database triggers block reuse of a sign-in code and stop a session moving to another client. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/db.js">db.js</a></li>
+        <li class="proof">security.mjs starts the real server and tries token replay, expired sessions and a token issued for the wrong app. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs">security.mjs</a></li>
+      </ol>
+    </div>
+    <div class="out o-r">
+      <span class="tagx">Output · sessions table</span>
+      <div class="scroll" tabindex="0" role="region" aria-label="Sessions table">
+        <table class="dt" id="sessions">
+          <caption class="vh">Sample rows from the sessions table</caption>
+          <thead><tr><th scope="col">id</th><th scope="col">family_id</th><th scope="col">revoked_at</th><th scope="col">revoked_reason</th></tr></thead>
+          <tbody>
+            <tr data-family="fam_7" class="live"><td>41</td><td>fam_7</td><td data-col="at">null</td><td data-col="reason">null</td></tr>
+            <tr><td>38</td><td>fam_5</td><td class="dim">2026-11-03T18:02:11.420Z</td><td>logout</td></tr>
+            <tr><td>35</td><td>fam_3</td><td class="dim">2026-11-02T09:40:00.000Z</td><td>absolute_timeout</td></tr>
+            <tr><td>33</td><td>fam_2</td><td class="dim">2026-11-01T22:15:31.873Z</td><td>reuse</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ann"># Sample rows. Revoked sessions stay, with a reason.<br><span data-hint># Turn on the attacker and go to step 08: fam_7 is revoked.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AUDIT LOG ================= -->
+<section class="wrap exh" id="audit" aria-labelledby="audit-h">
+  <div class="exh-head rev">
+    <div><div class="lbl">jkOS · jkAuth</div><h2 id="audit-h">Audit log</h2></div>
+  </div>
+  <div class="g12">
+    <div class="strip s-r" aria-hidden="true"><span class="vlab">auth_events table</span></div>
+    <div class="arch a-r" data-widget="audit">
+      <div class="ahead"><span class="lbl">How it works · select a step</span><span class="lbl">one trusted proxy</span></div>
+      <p class="fb-note">What each step records:</p>
+      <ol class="fb">
+        <li data-sub="from the internet"><b>Request</b>Nothing yet. An IP address the client claims for itself is ignored.</li>
+        <li data-sub="TLS, trusted proxy"><b>nginx</b>The client's real IP. jkAuth trusts exactly one proxy hop, and won't start if that setting changes.</li>
+        <li data-sub="decides"><b>jkAuth</b>The decision: allow, deny or lock the account.</li>
+        <li data-sub="auth_events"><b>Audit table</b>One row per event: time, type, user, IP and details. Users read their own rows. Admins read all of them.</li>
+      </ol>
+    </div>
+    <div class="out o-l">
+      <span class="tagx">Output · auth_events</span>
+      <div class="viewas" data-viewas hidden>
+        <span class="k">view as</span>
+        <div class="seg" role="group" aria-label="View the log as">
+          <button type="button" data-view="admin" aria-pressed="true">admin</button>
+          <button type="button" data-view="3" aria-pressed="false">user 3</button>
+        </div>
+      </div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Audit log rows">
+        <table class="dt" id="log">
+          <caption class="vh">Illustrative rows from the auth_events table</caption>
+          <thead><tr><th scope="col">created_at</th><th scope="col">type</th><th scope="col">user</th><th scope="col">ip</th><th scope="col">meta</th></tr></thead>
+          <tbody>
+            <tr data-user="3"><td class="dim">2026-11-03T21:14:02.118Z</td><td>login_fail</td><td>3</td><td class="dim">203.0.113.24</td><td class="dim">{"email":"…"}</td></tr>
+            <tr data-user="3"><td class="dim">2026-11-03T21:14:09.502Z</td><td class="hit">login_locked</td><td>3</td><td class="dim">203.0.113.24</td><td></td></tr>
+            <tr data-user="5"><td class="dim">2026-11-03T21:20:41.007Z</td><td class="hit">refresh_reuse</td><td>5</td><td class="dim">198.51.100.7</td><td class="dim">{"family":"…"}</td></tr>
+            <tr data-user=""><td class="dim">2026-11-03T21:22:15.664Z</td><td class="hit">service_token_denied</td><td></td><td class="dim">192.0.2.10</td><td class="dim">{"client_id":"…"}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ann"># Illustrative rows. IPs are from reserved documentation ranges.<br># <span data-viewnote>Admin view: every user's events.</span></div>
+    </div>
+    <div class="txt t-r">
+      <ol>
+        <li>jkAuth records 40 event types in an auth_events table: sign-ins, failed sign-ins, lockouts, password changes, token reuse, denied service requests and more. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/db.js">db.js</a></li>
+        <li>The client IP comes from nginx only. jkAuth won't start if that setting changes. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/app.js">app.js</a></li>
+        <li>Users see their own events. Admins see everyone's. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/weave.js">weave.js</a></li>
+        <li class="proof">multiuser.mjs checks that users can't read each other's events. security.mjs checks that events are written. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs">multiuser.mjs</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEPLOYMENTS ================= -->
+<section class="wrap exh" id="deploy" aria-labelledby="deploy-h">
+  <div class="exh-head">
+    <div><div class="lbl">jkOS · jkDeploy</div><h2 id="deploy-h">Deployments</h2></div>
+  </div>
+  <div class="g12">
+    <div class="strip s-l" aria-hidden="true"><span class="vlab">Staging to production</span></div>
+    <div class="arch a-l" data-widget="pipe">
+      <div class="ahead"><span class="lbl">How it works · select a stage</span><span class="lbl">tags = controls</span></div>
+      <ol class="fb">
+        <li data-sub="pnpm test:contracts"><b>Test suite</b>The full test suite is run before staging. It is run by hand: there is no CI yet, and CONTROLS.md lists that as a known gap.
+          <ul class="badges"><li class="badge gap">Run by hand, no CI yet</li></ul></li>
+        <li data-sub="admin only"><b>Staging</b>Staging has its own sign-in. nginx checks with jkAuth before serving any staging page, and lets in admins only.
+          <ul class="badges"><li class="badge">nginx asks jkAuth first</li><li class="badge">Separate staging sign-in</li></ul></li>
+        <li data-sub="admin only"><b>Promote</b>Only an admin can deploy. Production is reset to the exact commit staging ran. There is no merge step, and the server can't push code.
+          <ul class="badges"><li class="badge">Deploy requires admin</li><li class="badge">Exact commit, no merge</li><li class="badge">Server can't push code</li></ul></li>
+        <li data-sub="live"><b>Production</b>The nginx config is tested before nginx restarts. The deploy fails if any container isn't running or reports itself unhealthy.
+          <ul class="badges"><li class="badge">nginx config tested first</li><li class="badge">Every container healthy</li><li class="badge">Separate production sign-in</li></ul></li>
+      </ol>
+    </div>
+    <div class="txt t-l">
+      <ol>
+        <li>Staging is admin-only: nginx checks with jkAuth before serving any staging page. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/gen-nginx-weave.mjs">gen-nginx-weave.mjs</a></li>
+        <li>Staging and production use separate sign-ins, so a staging login doesn't work in production. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/packages/auth-middleware/index.js">index.js</a></li>
+        <li>Deploying requires an admin account. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/main.py">main.py</a></li>
+        <li>Production is reset to the exact commit staging ran. There is no merge step, and the server can't push code. A deploy fails if any container isn't running or is unhealthy. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/infra/scripts/lib-deploy.sh">lib-deploy.sh</a></li>
+      </ol>
+    </div>
+    <div class="out o-r">
+      <span class="tagx">Output · deploy log</span>
+<pre class="logl" tabindex="0" aria-label="Deploy log"><span class="k">=== Verifying containers ===</span>
+  <span class="ok">ok</span>  jkos-auth (running, health=healthy)
+  <span class="ok">ok</span>  bb-app (running, health=healthy)
+<span class="hl">[ERROR] container kouros-app is 'restarting' (expected running)</span>
+<span class="hl">[ERROR] one or more containers failed to come up — deploy NOT healthy</span></pre>
+      <div class="ann"># Example output. The format is from lib-deploy.sh.<br># One container was restarting, so the deploy failed.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ADDITIONAL PROJECTS ================= -->
+<section class="wrap sect" id="projects" aria-labelledby="more-h">
+  <h2 class="sh" id="more-h">Additional projects</h2>
+  <div class="cards">
+
+    <article class="card c-d" id="vibe" aria-labelledby="vibe-h">
+      <div class="ftab" aria-hidden="true">jkOS · KourOS</div>
+      <h3 id="vibe-h">Vibe map: embeddings and linear algebra</h3>
+      <div data-widget="steps">
+        <ol class="fb">
+          <li><b>Audio to mel spectrogram</b>Each track's audio becomes a mel spectrogram: how much energy sits in each frequency band over time.</li>
+          <li><b>512 numbers per track</b>A pretrained audio model (CLAP) turns the spectrogram into a 512-dimensional vector. 47,691 tracks are measured.</li>
+          <li><b>Cosine similarity</b>Tracks that sound alike point the same way. A raw comparison first made the hand-built baseline look better. That was an artifact of the model's narrow, cone-shaped space, and standardizing the gap fixed it.</li>
+          <li><b>Four axes</b>The map reduces 512 dimensions to four. Energy comes from a ridge regression probe and is removed first, so PCA's three spatial axes show everything except energy. UMAP and t-SNE were rejected because they give no stable coordinates.</li>
+        </ol>
+      </div>
+      <div class="out">
+        <span class="tagx">Output · similarity check</span>
+        <div class="scroll" tabindex="0" role="region" aria-label="Similarity results">
+        <table class="dt bars">
+          <caption class="vh">Nearest neighbour on the same album, over 1,506 tracks</caption>
+          <thead><tr><th scope="col">vectors</th><th scope="col">same album</th><th scope="col"><span class="vh">bar</span></th></tr></thead>
+          <tbody>
+            <tr><td>CLAP, 512-d</td><td class="live">40.0%</td><td><span class="bar"><i class="b40"></i></span></td></tr>
+            <tr><td>hand-built, 119 features</td><td>29.0%</td><td><span class="bar"><i class="b29"></i></span></td></tr>
+            <tr><td>chance</td><td class="dim">0.9%</td><td><span class="bar"><i class="b1"></i></span></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="ann"># How often a track's nearest neighbour was on the same album, over 1,506 tracks.</div>
+      </div>
+      <p class="body">The model is pretrained. At this library size, training one wasn't the right call. The work is the pipeline, the math and these checks:</p>
+      <ul class="plain">
+        <li>Pass and fail thresholds were fixed before the first real fit.</li>
+        <li>A fit that fails is refused. The map is marked "held" instead of shipped.</li>
+        <li>If the analysis config changes, the index refuses writes (<a href="https://github.com/jkondakalla/jkOS/blob/staging/music/index.py"><code>ConfigDriftError</code></a>).</li>
+        <li>The app checks five reference tracks against their stored coordinates before it trusts the map.</li>
+      </ul>
+      <p class="note"><a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/music/mapbasis.py">mapbasis.py</a> · design record: <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/Documentation/agents/ALGORITHMS.md">ALGORITHMS.md</a> §4 and §9</p>
+    </article>
+
+    <article class="card c-e" id="controls" aria-labelledby="controls-h">
+      <div class="ftab" aria-hidden="true">jkOS · CONTROLS.md</div>
+      <h3 id="controls-h">Controls matrix</h3>
+      <p class="body">22 controls. Each lists the risk, the code that enforces it, the test that proves it and the audit event it records.</p>
+      <div data-widget="controls">
+        <ol class="ctl static">
+<li id="ac-1" data-id="AC-1"><h4><span class="cid">AC-1</span> Passwords are hashed with bcrypt over a SHA-256 pre-hash, so input of any length is fully hashed.</h4>
+<dl><dt>Risk</dt><dd>Bcrypt silently truncates at 72 bytes, so two long passwords sharing a prefix would verify as one.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/password.js"><code>apps/jkauth/src/password.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/smoke.mjs"><code>apps/jkauth/test/smoke.mjs</code></a></dd><dt>Evidence</dt><dd><code>password_change</code> <code>password_reset</code></dd></dl></li>
+<li id="ac-2" data-id="AC-2"><h4><span class="cid">AC-2</span> Repeated failed sign-ins lock the account for a window. This includes the shared guest account.</h4>
+<dl><dt>Risk</dt><dd>Online password guessing.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/auth.js"><code>apps/jkauth/src/routes/auth.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/smoke.mjs"><code>apps/jkauth/test/smoke.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>login_fail</code> <code>login_locked</code> <code>guest_login_fail</code></dd></dl></li>
+<li id="ac-3" data-id="AC-3"><h4><span class="cid">AC-3</span> A second factor (TOTP or emailed code) is available per user. The TOTP secret is sealed with AES-256-GCM, and enrolment is refused when no sealing key is configured. Recovery codes carry 80 bits.</h4>
+<dl><dt>Risk</dt><dd>A stolen password alone signs in. A database copy leaks every TOTP seed. Short recovery codes are cracked offline.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/twofactor.js"><code>apps/jkauth/src/twofactor.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/secretbox.js"><code>apps/jkauth/src/secretbox.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>login_2fa_fail</code></dd></dl></li>
+<li id="ac-4" data-id="AC-4"><h4><span class="cid">AC-4</span> Tokens are RS256-signed by jkAuth alone. Every other service verifies them against the published public key, in Node and in Python.</h4>
+<dl><dt>Risk</dt><dd>A forged or tampered token, or a second signer drifting from the first.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js"><code>apps/jkauth/src/tokens.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/auth-middleware/index.js"><code>packages/auth-middleware/index.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/jkos_auth.py"><code>jkos-deploy/jkos_auth.py</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/contracts.mjs"><code>apps/jkauth/test/contracts.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/auth-middleware/test/jwks.mjs"><code>packages/auth-middleware/test/jwks.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="ac-5" data-id="AC-5"><h4><span class="cid">AC-5</span> A token is accepted only by the apps its audience names. Every Node backend refuses to start in production without an audience to check.</h4>
+<dl><dt>Risk</dt><dd>One cookie reaches every <code>*.jkos.net</code> host, so without this a token minted for one app is spendable at all of them.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/weave/src/server/auth.js"><code>packages/weave/src/server/auth.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js"><code>apps/jkauth/src/tokens.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/weave/test/weave.mjs"><code>packages/weave/test/weave.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="ac-6" data-id="AC-6"><h4><span class="cid">AC-6</span> Production and staging use different token issuers and cookie names, so a session in one grants nothing in the other.</h4>
+<dl><dt>Risk</dt><dd>A staging credential, which is easier to obtain, opens production.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/auth-middleware/index.js"><code>packages/auth-middleware/index.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/docker-compose.staging.yml"><code>apps/jkauth/docker-compose.staging.yml</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/contracts.mjs"><code>apps/jkauth/test/contracts.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="ac-7" data-id="AC-7"><h4><span class="cid">AC-7</span> Least privilege comes from one table: a route names an action and the policy module decides. No route compares roles itself.</h4>
+<dl><dt>Risk</dt><dd>An authorization check forgotten on one of many routes.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/policy.js"><code>apps/jkauth/src/policy.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/policy.mjs"><code>test/policy.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs"><code>apps/jkauth/test/multiuser.mjs</code></a></dd><dt>Evidence</dt><dd><code>widget_publish_rejected</code></dd></dl></li>
+<li id="ac-8" data-id="AC-8"><h4><span class="cid">AC-8</span> Write access needs a write scope, and the scopes jkAuth grants are generated from what each app declares rather than typed by hand.</h4>
+<dl><dt>Risk</dt><dd>A read-only token writes, or a granted scope names nothing real.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/weave/src/server/writeGate.js"><code>packages/weave/src/server/writeGate.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/suite-manifest/scripts/gen-scopes.mjs"><code>packages/suite-manifest/scripts/gen-scopes.mjs</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/lifecycle.mjs"><code>apps/jkauth/test/lifecycle.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="ac-9" data-id="AC-9"><h4><span class="cid">AC-9</span> Service accounts, and service accounts acting for a user, must be on an explicit allow-list.</h4>
+<dl><dt>Risk</dt><dd>A machine credential acting as any user.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/auth.js"><code>apps/jkauth/src/routes/auth.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/lifecycle.mjs"><code>apps/jkauth/test/lifecycle.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs"><code>apps/jkauth/test/multiuser.mjs</code></a></dd><dt>Evidence</dt><dd><code>service_token</code> <code>service_token_denied</code> <code>service_token_delegation_denied</code></dd></dl></li>
+<li id="ac-10" data-id="AC-10"><h4><span class="cid">AC-10</span> A hostname the edge doesn't host is refused: no TLS handshake on 443, connection closed on 80. The default server is declared, not left to config order.</h4>
+<dl><dt>Risk</dt><dd>Any domain pointed at the server is served an app; until this, unknown names fell through to KourOS.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/standalone.conf"><code>infra/nginx/standalone.conf</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/gen-nginx-weave.mjs"><code>infra/nginx/gen-nginx-weave.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="sm-1" data-id="SM-1"><h4><span class="cid">SM-1</span> Refresh tokens rotate on every use. Replaying a rotated one revokes every token from that sign-in.</h4>
+<dl><dt>Risk</dt><dd>A stolen refresh token keeps working alongside the real user.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js"><code>apps/jkauth/src/tokens.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>refresh_reuse</code></dd></dl></li>
+<li id="sm-2" data-id="SM-2"><h4><span class="cid">SM-2</span> A session has an absolute lifetime that even continuous refreshing cannot extend.</h4>
+<dl><dt>Risk</dt><dd>A session that never ends.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js"><code>apps/jkauth/src/tokens.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/config.js"><code>apps/jkauth/src/config.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>session_absolute_timeout</code></dd></dl></li>
+<li id="sm-3" data-id="SM-3"><h4><span class="cid">SM-3</span> A revoked session is kept as a record with a reason (logout, reuse, timeout), never deleted.</h4>
+<dl><dt>Risk</dt><dd>Revocation destroying the evidence an incident review needs.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/db.js"><code>apps/jkauth/src/db.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>logout</code> <code>session_revoked</code></dd></dl></li>
+<li id="sm-4" data-id="SM-4"><h4><span class="cid">SM-4</span> The database itself refuses two things: a native sign-in code being redeemed twice, and a session changing which client it belongs to.</h4>
+<dl><dt>Risk</dt><dd>An application bug that bypasses a route-level check.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/db.js"><code>apps/jkauth/src/db.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/native.mjs"><code>apps/jkauth/test/native.mjs</code></a></dd><dt>Evidence</dt><dd><code>native_code_reuse</code> <code>refresh_wrong_transport</code></dd></dl></li>
+<li id="au-1" data-id="AU-1"><h4><span class="cid">AU-1</span> Every authentication decision is written to <code>auth_events</code>. The client IP comes only from the one trusted proxy hop, and the service refuses to boot if that setting changes.</h4>
+<dl><dt>Risk</dt><dd>A missing record, or one carrying an IP the attacker chose.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/db.js"><code>apps/jkauth/src/db.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/app.js"><code>apps/jkauth/src/app.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs"><code>apps/jkauth/test/multiuser.mjs</code></a></dd><dt>Evidence</dt><dd><code>login</code> <code>login_fail</code> <code>password_change</code></dd></dl></li>
+<li id="au-2" data-id="AU-2"><h4><span class="cid">AU-2</span> Each user reads their own audit trail. Only an admin reads the whole suite's.</h4>
+<dl><dt>Risk</dt><dd>Users reading each other's activity.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/weave.js"><code>apps/jkauth/src/routes/weave.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/policy.js"><code>apps/jkauth/src/policy.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs"><code>apps/jkauth/test/multiuser.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/test/policy.mjs"><code>test/policy.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="cm-1" data-id="CM-1"><h4><span class="cid">CM-1</span> Every staging URL is admin-only. nginx asks staging jkAuth before serving each request, and the nginx config is generated, not hand-edited.</h4>
+<dl><dt>Risk</dt><dd>Unreleased code, or the deploy console, reachable by anyone.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/gen-nginx-weave.mjs"><code>infra/nginx/gen-nginx-weave.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/standalone.conf"><code>infra/nginx/standalone.conf</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/profile.js"><code>apps/jkauth/src/routes/profile.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/gen-nginx-weave.mjs"><code>infra/nginx/gen-nginx-weave.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/smoke.mjs"><code>apps/jkauth/test/smoke.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="cm-2" data-id="CM-2"><h4><span class="cid">CM-2</span> Deploy and promote actions require an admin session. Break-glass access is off unless configured, and is logged loudly when used.</h4>
+<dl><dt>Risk</dt><dd>An unauthorized production change.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/main.py"><code>jkos-deploy/main.py</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/jkos_auth.py"><code>jkos-deploy/jkos_auth.py</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/contracts.mjs"><code>apps/jkauth/test/contracts.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/scripts/selftest.sh"><code>jkos-deploy/scripts/selftest.sh</code></a></dd><dt>Evidence</dt><dd>deploy log</dd></dl></li>
+<li id="cm-3" data-id="CM-3"><h4><span class="cid">CM-3</span> Promotion ships exactly the commit staging ran. There is no merge step, and the server holds no push credential. A deploy fails if any container is not running or reports itself unhealthy, and nginx config is validated before restart.</h4>
+<dl><dt>Risk</dt><dd>Untested code reaching production, or a half-started deploy reported as done.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/scripts/lib-deploy.sh"><code>infra/scripts/lib-deploy.sh</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/scripts/deploy-prod.sh"><code>infra/scripts/deploy-prod.sh</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/main.py"><code>jkos-deploy/main.py</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/scripts/selftest.sh"><code>jkos-deploy/scripts/selftest.sh</code></a></dd><dt>Evidence</dt><dd>deploy log</dd></dl></li>
+<li id="cf-1" data-id="CF-1"><h4><span class="cid">CF-1</span> No secret material is tracked in git, and <code>.gitignore</code> keeps excluding env files and keys.</h4>
+<dl><dt>Risk</dt><dd>A credential published with the source.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/secrets.mjs"><code>test/secrets.mjs</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/secrets.mjs"><code>test/secrets.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="cf-2" data-id="CF-2"><h4><span class="cid">CF-2</span> Any HIGH or CRITICAL dependency advisory fails the gate.</h4>
+<dl><dt>Risk</dt><dd>Shipping a known-vulnerable dependency.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/supply-chain.mjs"><code>test/supply-chain.mjs</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/supply-chain.mjs"><code>test/supply-chain.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="cf-3" data-id="CF-3"><h4><span class="cid">CF-3</span> The installable Android and desktop apps keep their lockdown settings: no app backup, no Node in the page, a sandbox, and only the suite's own origins.</h4>
+<dl><dt>Risk</dt><dd>One configuration token silently reopening the shell.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/native/gen-native.mjs"><code>native/gen-native.mjs</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/native.mjs"><code>test/native.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+        </ol>
+      </div>
+      <div class="out">
+        <span class="tagx">Output · check:docs</span>
+<pre class="logl" tabindex="0" aria-label="check:docs output"><span class="k">$ pnpm check:docs</span>
+<span class="hl">  ✗ CONTROLS.md AC-5 cites packages/weave/src/server/auth.js, which exists</span>
+<span class="hl">  ✗ CONTROLS.md SM-1's evidence 'refresh_reuse' is an event jkAuth writes  — no logEvent call writes it</span></pre>
+        <div class="ann"># Example: what the check prints if a cited file is renamed or an event stops being written. The format is from test/docs.mjs.</div>
+      </div>
+      <p class="body">The test suite parses this file. Cited files must exist, cited tests must run, and cited events must be real. It is one of 36 conformance checks. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/test/docs.mjs">docs.mjs</a></p>
+      <p class="body">The file also lists known gaps, including:</p>
+      <ul class="gaps">
+        <li>No CI. The test suite runs only when I run it.</li>
+        <li>No off-site backup yet.</li>
+        <li>The deploy test needs Docker, so it runs by hand, outside the suite.</li>
+      </ul>
+      <p class="note"><a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/Documentation/CONTROLS.md">CONTROLS.md</a></p>
+    </article>
+
+    <article class="card c-k" id="kpi" aria-labelledby="kpi-h">
+      <div class="ftab" aria-hidden="true">IAT Insurance Group · 2025</div>
+      <h3 id="kpi-h">Automated Team KPI Reports</h3>
+      <div data-widget="steps">
+        <ol class="fb">
+          <li><b>Power BI data</b>Pulls each manager's monthly ticket data from Power BI.</li>
+          <li><b>Per-employee comparison</b>Compares each employee against their own history.</li>
+          <li><b>Weighted trend model</b>Adjusts for seasonal and year-over-year patterns, and weights recent months more.</li>
+          <li><b>Summary and workbook</b>Produces a monthly outlier summary and an Excel workbook of pivot tables.</li>
+        </ol>
+      </div>
+      <p class="note">Built during my internship. The reports used internal company data, so no output is shown here.</p>
+    </article>
+
+  </div>
+</section>
+
+<!-- ================= EXPERIENCE ================= -->
+<section class="wrap sect" id="experience" aria-labelledby="exp-h">
+  <h2 class="sh" id="exp-h">Experience and education</h2>
+  <div class="row">
+    <div class="when">May 2025 – Aug 2025</div>
+    <div>
+      <h3>Business Application Support Intern</h3>
+      <div class="org">IAT Insurance Group</div>
+      <ul>
+        <li>Resolved 100+ Tier 1 Duck Creek tickets in ServiceNow and Jira, escalating complex cases to Tier 2.</li>
+        <li>Wrote 10+ troubleshooting guides for recurring issues.</li>
+        <li>Built 3 automation tools with Python, Power Automate, Azure and Dataverse, deployed inside Microsoft Teams for the Tier 1 desk.</li>
+        <li>Built the automated team KPI reports described above.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="row">
+    <div class="when">Ongoing</div>
+    <div>
+      <h3>jkOS</h3>
+      <div class="org">Self-hosted app suite</div>
+      <p>Single sign-on, an audit log and controlled deployments across containerized apps, behind nginx with TLS and WireGuard for remote access.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="when">Jul 2026 – Oct 2026</div>
+    <div>
+      <h3>B.S. Accounting</h3>
+      <div class="org">Western Governors University</div>
+      <p>Awarded October 22, 2026. Coursework includes Auditing, Accounting Information Systems, Intermediate Accounting I to III, Cost and Managerial Accounting, Taxation and Business Law for Accountants.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="when">Aug 2023 – May 2025</div>
+    <div>
+      <h3>University of Illinois Urbana-Champaign</h3>
+      <div class="org">Gies College of Business, Accountancy</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="when">Aug 2021 – May 2023</div>
+    <div>
+      <h3>University of Illinois Chicago</h3>
+      <div class="org">Credits transferred</div>
+    </div>
+  </div>
+
+  <div class="skills">
+    <div><h3>Support</h3><ul class="tags"><li class="tag">Tier 1 triage</li><li class="tag">Escalation to Tier 2</li><li class="tag">ServiceNow</li><li class="tag">Jira</li><li class="tag">Windows and Linux desktop</li><li class="tag">Technical writing</li></ul></div>
+    <div><h3>Platforms</h3><ul class="tags"><li class="tag">Microsoft 365</li><li class="tag">Teams</li><li class="tag">Power Automate</li><li class="tag">Power BI</li><li class="tag">Dataverse</li><li class="tag">Azure</li><li class="tag">Access</li><li class="tag">Excel</li><li class="tag">Duck Creek</li><li class="tag">Docker</li></ul></div>
+    <div><h3>Networking and access</h3><ul class="tags"><li class="tag">TCP/IP</li><li class="tag">DNS</li><li class="tag">nginx</li><li class="tag">SSL/TLS</li><li class="tag">WireGuard</li><li class="tag">NFS</li><li class="tag">SSO (RS256, JWT)</li><li class="tag">Account provisioning</li><li class="tag">Session and access management</li></ul></div>
+    <div><h3>Systems and code</h3><ul class="tags"><li class="tag">Linux server admin</li><li class="tag">TrueNAS / ZFS</li><li class="tag">Staging and production</li><li class="tag">Python</li><li class="tag">Java</li><li class="tag">C#</li><li class="tag">SQL</li></ul></div>
+  </div>
+  <p class="note">Languages: English and Telugu.</p>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="foot" id="contact" aria-labelledby="contact-h">
+  <div class="wrap in">
+    <span class="script" aria-hidden="true">Jag</span>
+    <div class="r">
+      <h2 class="lbl" id="contact-h">Contact</h2>
+      <p class="mail"><a href="mailto:jaaggruthos@gmail.com" data-mail>jaaggruthos@gmail.com</a></p>
+      <div class="fl">
+        <button class="copy" type="button" data-copy hidden>Copy email</button>
+        <a href="https://github.com/jkondakalla">GitHub</a>
+        <a href="https://github.com/jkondakalla/jkOS">jkOS repo</a>
+        <a href="Jag_Kondakalla_Resume.pdf">Resume PDF</a>
+      </div>
+      <p class="small">Aurora, IL. This site is static: no cookies, no tracking.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+</body>
+</html>
