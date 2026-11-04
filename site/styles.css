@@ -99,7 +99,7 @@ img,svg{max-width:100%}
 .o-r{grid-column:6 / span 7;margin-right:-24px}.o-l{grid-column:1 / span 7;margin-left:-24px}
 .tagx{position:absolute;top:-30px;left:0;background:var(--acc);color:var(--acc-ink);font-family:var(--ui);font-weight:800;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px}
 .txt{grid-row:2;padding-top:48px;min-width:0}
-.t-l{grid-column:2 / span 4}.t-r{grid-column:8 / span 5}
+.t-l{grid-column:2 / span 4}.t-r{grid-column:8 / span 4}
 .txt ol,.txt ul{list-style:none;margin:0;padding:0;counter-reset:r}
 .txt li{counter-increment:r;padding:12px 0 12px 40px;position:relative;border-top:2px solid var(--ink);font-size:17px;line-height:1.45}
 .txt li::before{content:counter(r) ".";position:absolute;left:0;top:13px;font-family:var(--code);font-size:13px;color:var(--acc)}
@@ -375,3 +375,21 @@ img,svg{max-width:100%}
 .ctl dd a{display:block;min-height:24px;padding:2px 0;width:max-content;max-width:100%}
 /* The accent shift re-styles every element each frame. Phones and tablets keep the gradient, still. */
 @media (max-width:960px),(pointer:coarse){:root{animation:none}}
+
+/* review fixes */
+code,pre,.out,.dt,.src,.chip,.pill,.sub,.nn,.mnum,.when{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+.h-name{margin-bottom:-6px}
+
+@media (min-width:961px){.exh .arch{padding-bottom:96px}}
+.chips{margin-top:18px}
+.card .out .logl.wrap{white-space:pre-wrap;overflow-wrap:anywhere}
+@media (max-width:960px){
+  .exh .g12 > .arch{order:1}.exh .g12 > .out{order:2}.exh .g12 > .txt{order:3}
+  .exh .out{margin-top:46px!important}
+  .foot .script{margin-bottom:24px}
+}
+@media (max-width:640px){
+  .jk-word{font-size:112px}
+  .jk-sq{width:84px;height:84px;top:-24px;right:8px}
+  .jk-b{padding-top:48px}
+}

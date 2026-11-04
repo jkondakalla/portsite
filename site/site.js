@@ -53,6 +53,7 @@
     list.hidden = true;
 
     var table = document.getElementById("sessions");
+    var hint = document.querySelector("[data-hint]"); if (hint) hint.hidden = false;
     var famRow = table && table.querySelector('tr[data-family="fam_7"]');
 
     function render() {

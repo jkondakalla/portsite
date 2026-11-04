@@ -118,7 +118,7 @@
           </tbody>
         </table>
       </div>
-      <div class="ann"># Sample rows. Revoked sessions stay, with a reason.<br><span data-hint># Turn on the attacker and go to step 08: fam_7 is revoked.</span></div>
+      <div class="ann"># Sample rows. Revoked sessions stay, with a reason.<span data-hint hidden><br># Turn on the attacker and go to step 08: fam_7 is revoked.</span></div>
     </div>
   </div>
 </section>
@@ -309,7 +309,7 @@
       </div>
       <div class="out">
         <span class="tagx">Output · check:docs</span>
-<pre class="logl" tabindex="0" aria-label="check:docs output"><span class="k">$ pnpm check:docs</span>
+<pre class="logl wrap"><span class="k">$ pnpm check:docs</span>
 <span class="hl">  ✗ CONTROLS.md AC-5 cites packages/weave/src/server/auth.js, which exists</span>
 <span class="hl">  ✗ CONTROLS.md SM-1's evidence 'refresh_reuse' is an event jkAuth writes  — no logEvent call writes it</span></pre>
         <div class="ann"># Example: what the check prints if a cited file is renamed or an event stops being written. The format is from test/docs.mjs.</div>
