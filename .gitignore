@@ -1,0 +1,5 @@
+node_modules/
+# design export and drafts: reference only, not published
+portfolio-reference/
+# verification output (screenshots, lighthouse reports)
+out/
