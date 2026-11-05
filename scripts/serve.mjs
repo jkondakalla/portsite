@@ -7,6 +7,7 @@ import { extname, join, normalize, resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const SITE = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'site');
+export const PAGES = ['/', '/jkos/', '/projects/', '/experience/', '/contact/'];
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.pdf': 'application/pdf', '.txt': 'text/plain; charset=utf-8', '.png': 'image/png' };
 
@@ -24,11 +25,13 @@ export function start(port = 0) {
   const rules = headerRules();
   const server = createServer(async (req, res) => {
     let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-    if (p.endsWith('/')) p += 'index.html';
+    if (p.endsWith("/")) p += 'index.html';
     const file = normalize(join(SITE, p));
     if (!file.startsWith(SITE) || p.includes('_headers')) { res.writeHead(404); return res.end(); }
     try {
-      if (!(await stat(file)).isFile()) throw 0;
+      const st = await stat(file);
+      if (st.isDirectory()) { res.writeHead(301, { Location: p + '/' }); return res.end(); }
+      if (!st.isFile()) throw 0;
       const h = { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream' };
       for (const r of rules) {
         const re = new RegExp('^' + r.pat.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$');

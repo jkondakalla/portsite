@@ -199,7 +199,7 @@
     var list = root.querySelector("ol.fb");
     var steps = $$(":scope > li", list).map(function (li) { return { t: title(li), d: caption(li) }; });
     var flow = el("div", "kflow"); flow.setAttribute("role", "group");
-    var heading = root.closest("article") && root.closest("article").querySelector("h3");
+    var heading = root.closest("article") && root.closest("article").querySelector("h2");
     if (heading) flow.setAttribute("aria-label", "Steps: " + heading.textContent);
     var cap = el("p", "cap"); cap.setAttribute("aria-live", "polite");
     var cur = 0, btns = [];
@@ -255,24 +255,6 @@
         setTimeout(function () { btn.textContent = "Copy email"; }, 1600);
       }, function () { btn.textContent = "Copy failed"; });
     });
-  })();
-
-  /* ---------- Tabs: mark the section in view ---------- */
-  (function () {
-    if (!("IntersectionObserver" in window)) return;
-    var tabs = $$(".tabs .tab");
-    var map = { jkos: "jkos", sso: "jkos", audit: "jkos", deploy: "jkos", projects: "projects", experience: "experience", contact: "contact" };
-    function mark(name) {
-      tabs.forEach(function (t) {
-        if (t.getAttribute("href") === "#" + name) t.setAttribute("aria-current", "true"); else t.removeAttribute("aria-current");
-      });
-    }
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) mark(map[e.target.id]); });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-    Object.keys(map).forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
-    var hero = document.querySelector(".hero");
-    if (hero) new IntersectionObserver(function (es) { if (es[0].isIntersecting) mark(""); }, { rootMargin: "-45% 0px -50% 0px" }).observe(hero);
   })();
 
   /* ---------- Scroll reveal: visible at rest; a short rise when they come into view ---------- */

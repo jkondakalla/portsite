@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · Jag Kondakalla</title>
+<meta name="description" content="Additional projects by Jag Kondakalla.">
+<meta name="theme-color" content="#0C1214">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://jaaggruthkondakalla.com/projects/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Projects · Jag Kondakalla">
+<meta property="og:description" content="Additional projects by Jag Kondakalla.">
+<meta property="og:url" content="https://jaaggruthkondakalla.com/projects/">
+<link rel="preload" href="/fonts/libre-caslon-text-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<nav class="wrap tabs" aria-label="Site">
+  <a class="tab" href="/">Home</a>
+  <a class="tab t1" href="/jkos/">jkOS</a>
+  <a class="tab t2" href="/projects/" aria-current="page">Projects</a>
+  <a class="tab t1" href="/experience/">Experience</a>
+  <a class="tab" href="/contact/">Contact</a>
+  <span class="sp"></span>
+  <a class="btn" href="/Jag_Kondakalla_Resume.pdf">Resume PDF</a>
+</nav>
+
+<main id="main">
+
+<section class="wrap sect" id="projects" aria-labelledby="more-h">
+  <h1 class="sh" id="more-h">Additional projects</h1>
+  <div class="cards">
+
+    <article class="card c-d" id="vibe" aria-labelledby="vibe-h">
+      <div class="ftab" aria-hidden="true">jkOS · KourOS</div>
+      <h2 id="vibe-h">Vibe map: embeddings and linear algebra</h2>
+      <div data-widget="steps">
+        <ol class="fb">
+          <li><b>Audio to mel spectrogram</b>Each track's audio becomes a mel spectrogram: how much energy sits in each frequency band over time.</li>
+          <li><b>512 numbers per track</b>A pretrained audio model (CLAP) turns the spectrogram into a 512-dimensional vector. 47,691 tracks are measured.</li>
+          <li><b>Cosine similarity</b>Tracks that sound alike point the same way. A raw comparison first made the hand-built baseline look better. That was an artifact of the model's narrow, cone-shaped space, and standardizing the gap fixed it.</li>
+          <li><b>Four axes</b>The map reduces 512 dimensions to four. Energy comes from a ridge regression probe and is removed first, so PCA's three spatial axes show everything except energy. UMAP and t-SNE were rejected because they give no stable coordinates.</li>
+        </ol>
+      </div>
+      <div class="out">
+        <span class="tagx">Output · similarity check</span>
+        <div class="scroll" tabindex="0" role="region" aria-label="Similarity results">
+        <table class="dt bars">
+          <caption class="vh">Nearest neighbour on the same album, over 1,506 tracks</caption>
+          <thead><tr><th scope="col">vectors</th><th scope="col">same album</th><th scope="col"><span class="vh">bar</span></th></tr></thead>
+          <tbody>
+            <tr><td>CLAP, 512-d</td><td class="live">40.0%</td><td><span class="bar"><i class="b40"></i></span></td></tr>
+            <tr><td>hand-built, 119 features</td><td>29.0%</td><td><span class="bar"><i class="b29"></i></span></td></tr>
+            <tr><td>chance</td><td class="dim">0.9%</td><td><span class="bar"><i class="b1"></i></span></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="ann"># How often a track's nearest neighbour was on the same album, over 1,506 tracks.</div>
+      </div>
+      <p class="body">The model is pretrained. At this library size, training one wasn't the right call. The work is the pipeline, the math and these checks:</p>
+      <ul class="plain">
+        <li>Pass and fail thresholds were fixed before the first real fit.</li>
+        <li>A fit that fails is refused. The map is marked "held" instead of shipped.</li>
+        <li>If the analysis config changes, the index refuses writes (<a href="https://github.com/jkondakalla/jkOS/blob/staging/music/index.py"><code>ConfigDriftError</code></a>).</li>
+        <li>The app checks five reference tracks against their stored coordinates before it trusts the map.</li>
+      </ul>
+      <p class="note"><a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/music/mapbasis.py">mapbasis.py</a> · design record: <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/Documentation/agents/ALGORITHMS.md">ALGORITHMS.md</a> §4 and §9</p>
+    </article>
+
+    <article class="card c-e" id="controls" aria-labelledby="controls-h">
+      <div class="ftab" aria-hidden="true">jkOS · CONTROLS.md</div>
+      <h2 id="controls-h">Controls matrix</h2>
+      <p class="body">22 controls. Each lists the risk, the code that enforces it, the test that proves it and the audit event it records.</p>
+      <div data-widget="controls">
+        <ol class="ctl static">
+<li id="ac-1" data-id="AC-1"><h3><span class="cid">AC-1</span> Passwords are hashed with bcrypt over a SHA-256 pre-hash, so input of any length is fully hashed.</h3>
+<dl><dt>Risk</dt><dd>Bcrypt silently truncates at 72 bytes, so two long passwords sharing a prefix would verify as one.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/password.js"><code>apps/jkauth/src/password.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/smoke.mjs"><code>apps/jkauth/test/smoke.mjs</code></a></dd><dt>Evidence</dt><dd><code>password_change</code> <code>password_reset</code></dd></dl></li>
+<li id="ac-2" data-id="AC-2"><h3><span class="cid">AC-2</span> Repeated failed sign-ins lock the account for a window. This includes the shared guest account.</h3>
+<dl><dt>Risk</dt><dd>Online password guessing.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/auth.js"><code>apps/jkauth/src/routes/auth.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/smoke.mjs"><code>apps/jkauth/test/smoke.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>login_fail</code> <code>login_locked</code> <code>guest_login_fail</code></dd></dl></li>
+<li id="ac-3" data-id="AC-3"><h3><span class="cid">AC-3</span> A second factor (TOTP or emailed code) is available per user. The TOTP secret is sealed with AES-256-GCM, and enrolment is refused when no sealing key is configured. Recovery codes carry 80 bits.</h3>
+<dl><dt>Risk</dt><dd>A stolen password alone signs in. A database copy leaks every TOTP seed. Short recovery codes are cracked offline.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/twofactor.js"><code>apps/jkauth/src/twofactor.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/secretbox.js"><code>apps/jkauth/src/secretbox.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>login_2fa_fail</code></dd></dl></li>
+<li id="ac-4" data-id="AC-4"><h3><span class="cid">AC-4</span> Tokens are RS256-signed by jkAuth alone. Every other service verifies them against the published public key, in Node and in Python.</h3>
+<dl><dt>Risk</dt><dd>A forged or tampered token, or a second signer drifting from the first.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js"><code>apps/jkauth/src/tokens.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/auth-middleware/index.js"><code>packages/auth-middleware/index.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/jkos_auth.py"><code>jkos-deploy/jkos_auth.py</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/contracts.mjs"><code>apps/jkauth/test/contracts.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/auth-middleware/test/jwks.mjs"><code>packages/auth-middleware/test/jwks.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="ac-5" data-id="AC-5"><h3><span class="cid">AC-5</span> A token is accepted only by the apps its audience names. Every Node backend refuses to start in production without an audience to check.</h3>
+<dl><dt>Risk</dt><dd>One cookie reaches every <code>*.jkos.net</code> host, so without this a token minted for one app is spendable at all of them.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/weave/src/server/auth.js"><code>packages/weave/src/server/auth.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js"><code>apps/jkauth/src/tokens.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/weave/test/weave.mjs"><code>packages/weave/test/weave.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="ac-6" data-id="AC-6"><h3><span class="cid">AC-6</span> Production and staging use different token issuers and cookie names, so a session in one grants nothing in the other.</h3>
+<dl><dt>Risk</dt><dd>A staging credential, which is easier to obtain, opens production.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/auth-middleware/index.js"><code>packages/auth-middleware/index.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/docker-compose.staging.yml"><code>apps/jkauth/docker-compose.staging.yml</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/contracts.mjs"><code>apps/jkauth/test/contracts.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="ac-7" data-id="AC-7"><h3><span class="cid">AC-7</span> Least privilege comes from one table: a route names an action and the policy module decides. No route compares roles itself.</h3>
+<dl><dt>Risk</dt><dd>An authorization check forgotten on one of many routes.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/policy.js"><code>apps/jkauth/src/policy.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/policy.mjs"><code>test/policy.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs"><code>apps/jkauth/test/multiuser.mjs</code></a></dd><dt>Evidence</dt><dd><code>widget_publish_rejected</code></dd></dl></li>
+<li id="ac-8" data-id="AC-8"><h3><span class="cid">AC-8</span> Write access needs a write scope, and the scopes jkAuth grants are generated from what each app declares rather than typed by hand.</h3>
+<dl><dt>Risk</dt><dd>A read-only token writes, or a granted scope names nothing real.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/weave/src/server/writeGate.js"><code>packages/weave/src/server/writeGate.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/packages/suite-manifest/scripts/gen-scopes.mjs"><code>packages/suite-manifest/scripts/gen-scopes.mjs</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/lifecycle.mjs"><code>apps/jkauth/test/lifecycle.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="ac-9" data-id="AC-9"><h3><span class="cid">AC-9</span> Service accounts, and service accounts acting for a user, must be on an explicit allow-list.</h3>
+<dl><dt>Risk</dt><dd>A machine credential acting as any user.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/auth.js"><code>apps/jkauth/src/routes/auth.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/lifecycle.mjs"><code>apps/jkauth/test/lifecycle.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs"><code>apps/jkauth/test/multiuser.mjs</code></a></dd><dt>Evidence</dt><dd><code>service_token</code> <code>service_token_denied</code> <code>service_token_delegation_denied</code></dd></dl></li>
+<li id="ac-10" data-id="AC-10"><h3><span class="cid">AC-10</span> A hostname the edge doesn't host is refused: no TLS handshake on 443, connection closed on 80. The default server is declared, not left to config order.</h3>
+<dl><dt>Risk</dt><dd>Any domain pointed at the server is served an app; until this, unknown names fell through to KourOS.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/standalone.conf"><code>infra/nginx/standalone.conf</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/gen-nginx-weave.mjs"><code>infra/nginx/gen-nginx-weave.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="sm-1" data-id="SM-1"><h3><span class="cid">SM-1</span> Refresh tokens rotate on every use. Replaying a rotated one revokes every token from that sign-in.</h3>
+<dl><dt>Risk</dt><dd>A stolen refresh token keeps working alongside the real user.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js"><code>apps/jkauth/src/tokens.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>refresh_reuse</code></dd></dl></li>
+<li id="sm-2" data-id="SM-2"><h3><span class="cid">SM-2</span> A session has an absolute lifetime that even continuous refreshing cannot extend.</h3>
+<dl><dt>Risk</dt><dd>A session that never ends.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/tokens.js"><code>apps/jkauth/src/tokens.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/config.js"><code>apps/jkauth/src/config.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>session_absolute_timeout</code></dd></dl></li>
+<li id="sm-3" data-id="SM-3"><h3><span class="cid">SM-3</span> A revoked session is kept as a record with a reason (logout, reuse, timeout), never deleted.</h3>
+<dl><dt>Risk</dt><dd>Revocation destroying the evidence an incident review needs.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/db.js"><code>apps/jkauth/src/db.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a></dd><dt>Evidence</dt><dd><code>logout</code> <code>session_revoked</code></dd></dl></li>
+<li id="sm-4" data-id="SM-4"><h3><span class="cid">SM-4</span> The database itself refuses two things: a native sign-in code being redeemed twice, and a session changing which client it belongs to.</h3>
+<dl><dt>Risk</dt><dd>An application bug that bypasses a route-level check.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/db.js"><code>apps/jkauth/src/db.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/native.mjs"><code>apps/jkauth/test/native.mjs</code></a></dd><dt>Evidence</dt><dd><code>native_code_reuse</code> <code>refresh_wrong_transport</code></dd></dl></li>
+<li id="au-1" data-id="AU-1"><h3><span class="cid">AU-1</span> Every authentication decision is written to <code>auth_events</code>. The client IP comes only from the one trusted proxy hop, and the service refuses to boot if that setting changes.</h3>
+<dl><dt>Risk</dt><dd>A missing record, or one carrying an IP the attacker chose.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/db.js"><code>apps/jkauth/src/db.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/app.js"><code>apps/jkauth/src/app.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/security.mjs"><code>apps/jkauth/test/security.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs"><code>apps/jkauth/test/multiuser.mjs</code></a></dd><dt>Evidence</dt><dd><code>login</code> <code>login_fail</code> <code>password_change</code></dd></dl></li>
+<li id="au-2" data-id="AU-2"><h3><span class="cid">AU-2</span> Each user reads their own audit trail. Only an admin reads the whole suite's.</h3>
+<dl><dt>Risk</dt><dd>Users reading each other's activity.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/weave.js"><code>apps/jkauth/src/routes/weave.js</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/policy.js"><code>apps/jkauth/src/policy.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/multiuser.mjs"><code>apps/jkauth/test/multiuser.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/test/policy.mjs"><code>test/policy.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="cm-1" data-id="CM-1"><h3><span class="cid">CM-1</span> Every staging URL is admin-only. nginx asks staging jkAuth before serving each request, and the nginx config is generated, not hand-edited.</h3>
+<dl><dt>Risk</dt><dd>Unreleased code, or the deploy console, reachable by anyone.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/gen-nginx-weave.mjs"><code>infra/nginx/gen-nginx-weave.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/standalone.conf"><code>infra/nginx/standalone.conf</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/src/routes/profile.js"><code>apps/jkauth/src/routes/profile.js</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/nginx/gen-nginx-weave.mjs"><code>infra/nginx/gen-nginx-weave.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/smoke.mjs"><code>apps/jkauth/test/smoke.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="cm-2" data-id="CM-2"><h3><span class="cid">CM-2</span> Deploy and promote actions require an admin session. Break-glass access is off unless configured, and is logged loudly when used.</h3>
+<dl><dt>Risk</dt><dd>An unauthorized production change.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/main.py"><code>jkos-deploy/main.py</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/jkos_auth.py"><code>jkos-deploy/jkos_auth.py</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/apps/jkauth/test/contracts.mjs"><code>apps/jkauth/test/contracts.mjs</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/scripts/selftest.sh"><code>jkos-deploy/scripts/selftest.sh</code></a></dd><dt>Evidence</dt><dd>deploy log</dd></dl></li>
+<li id="cm-3" data-id="CM-3"><h3><span class="cid">CM-3</span> Promotion ships exactly the commit staging ran. There is no merge step, and the server holds no push credential. A deploy fails if any container is not running or reports itself unhealthy, and nginx config is validated before restart.</h3>
+<dl><dt>Risk</dt><dd>Untested code reaching production, or a half-started deploy reported as done.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/scripts/lib-deploy.sh"><code>infra/scripts/lib-deploy.sh</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/infra/scripts/deploy-prod.sh"><code>infra/scripts/deploy-prod.sh</code></a> <a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/main.py"><code>jkos-deploy/main.py</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/jkos-deploy/scripts/selftest.sh"><code>jkos-deploy/scripts/selftest.sh</code></a></dd><dt>Evidence</dt><dd>deploy log</dd></dl></li>
+<li id="cf-1" data-id="CF-1"><h3><span class="cid">CF-1</span> No secret material is tracked in git, and <code>.gitignore</code> keeps excluding env files and keys.</h3>
+<dl><dt>Risk</dt><dd>A credential published with the source.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/secrets.mjs"><code>test/secrets.mjs</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/secrets.mjs"><code>test/secrets.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="cf-2" data-id="CF-2"><h3><span class="cid">CF-2</span> Any HIGH or CRITICAL dependency advisory fails the gate.</h3>
+<dl><dt>Risk</dt><dd>Shipping a known-vulnerable dependency.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/supply-chain.mjs"><code>test/supply-chain.mjs</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/supply-chain.mjs"><code>test/supply-chain.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+<li id="cf-3" data-id="CF-3"><h3><span class="cid">CF-3</span> The installable Android and desktop apps keep their lockdown settings: no app backup, no Node in the page, a sandbox, and only the suite's own origins.</h3>
+<dl><dt>Risk</dt><dd>One configuration token silently reopening the shell.</dd><dt>Enforced in</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/native/gen-native.mjs"><code>native/gen-native.mjs</code></a></dd><dt>Proved by</dt><dd><a href="https://github.com/jkondakalla/jkOS/blob/staging/test/native.mjs"><code>test/native.mjs</code></a></dd><dt>Evidence</dt><dd>none</dd></dl></li>
+        </ol>
+      </div>
+      <div class="out">
+        <span class="tagx">Output · check:docs</span>
+<pre class="logl pw"><span class="k">$ pnpm check:docs</span>
+<span class="hl">  ✗ CONTROLS.md AC-5 cites packages/weave/src/server/auth.js, which exists</span>
+<span class="hl">  ✗ CONTROLS.md SM-1's evidence 'refresh_reuse' is an event jkAuth writes  — no logEvent call writes it</span></pre>
+        <div class="ann"># Example: what the check prints if a cited file is renamed or an event stops being written. The format is from test/docs.mjs.</div>
+      </div>
+      <p class="body">The test suite parses this file. Cited files must exist, cited tests must run, and cited events must be real. It is one of 36 conformance checks. <a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/test/docs.mjs">docs.mjs</a></p>
+      <p class="body">The file also lists known gaps, including:</p>
+      <ul class="gaps">
+        <li>No CI. The test suite runs only when I run it.</li>
+        <li>No off-site backup yet.</li>
+        <li>The deploy test needs Docker, so it runs by hand, outside the suite.</li>
+      </ul>
+      <p class="note"><a class="src" href="https://github.com/jkondakalla/jkOS/blob/staging/Documentation/CONTROLS.md">CONTROLS.md</a></p>
+    </article>
+
+    <article class="card c-k" id="kpi" aria-labelledby="kpi-h">
+      <div class="ftab" aria-hidden="true">IAT Insurance Group · 2025</div>
+      <h2 id="kpi-h">Automated Team KPI Reports</h2>
+      <div data-widget="steps">
+        <ol class="fb">
+          <li><b>Power BI data</b>Pulls each manager's monthly ticket data from Power BI.</li>
+          <li><b>Per-employee comparison</b>Compares each employee against their own history.</li>
+          <li><b>Weighted trend model</b>Adjusts for seasonal and year-over-year patterns, and weights recent months more.</li>
+          <li><b>Summary and workbook</b>Produces a monthly outlier summary and an Excel workbook of pivot tables.</li>
+        </ol>
+      </div>
+      <p class="note">Built during my internship. The reports used internal company data, so no output is shown here.</p>
+    </article>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap mini">
+  <p>Aurora, IL. This site is static: no cookies, no tracking.</p>
+  <a href="/contact/">Contact</a>
+</footer>
+
+<script src="/site.js"></script>
+</body>
+</html>

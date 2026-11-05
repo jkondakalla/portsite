@@ -53,7 +53,7 @@ img,svg{max-width:100%}
 .tabs{display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap;padding-block:24px 0;border-bottom:3px solid var(--ink)}
 .tab{font-family:var(--ui);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:2px solid var(--ink);border-bottom:0;padding:10px 14px 8px;min-height:44px;display:inline-flex;align-items:center;background:var(--bg)}
 .tab.t1{padding-top:16px}.tab.t2{padding-top:12px}
-.tab[aria-current="true"]{background:var(--ink);color:var(--bg)}
+.tab[aria-current="page"]{background:var(--ink);color:var(--bg)}
 .tabs .sp{flex:1}
 .tabs .btn{margin-bottom:6px}
 @media (max-width:700px){.tab{font-size:11px;padding:8px 10px 6px;letter-spacing:.06em}.tab.t1,.tab.t2{padding-top:8px}.tabs .sp{display:none}.tabs .btn{display:none}}
@@ -193,7 +193,7 @@ img,svg{max-width:100%}
 .cards{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;margin-top:40px;align-items:start}
 .card{border:2px solid var(--ink);background:var(--bg);padding:28px;position:relative;min-width:0;margin-top:30px}
 .ftab{position:absolute;top:-32px;left:-2px;border:2px solid var(--ink);border-bottom:0;background:var(--bg);font-family:var(--ui);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:7px 14px;height:32px;white-space:nowrap;max-width:calc(100% + 4px);overflow:hidden;text-overflow:ellipsis}
-.card h3{font-size:30px;line-height:1.1;margin:0 0 18px;letter-spacing:-.01em}
+.card h2{font-size:30px;line-height:1.1;margin:0 0 18px;letter-spacing:-.01em}
 .card .out{margin:34px 0 0;grid-row:auto}
 .card p.body{font-size:17px;line-height:1.5;margin-top:16px}
 .note{font-size:15.5px;line-height:1.5;color:var(--mut);margin-top:16px}
@@ -213,7 +213,7 @@ img,svg{max-width:100%}
 .c-d .kstep:nth-child(n+3){border-top:2px solid var(--ink)}
 .bars{width:100%;margin-top:4px}
 .bars td{white-space:normal}
-.bar{display:block;height:10px;background:var(--term-rule);min-width:120px}
+.bar{display:block;height:10px;background:var(--term-rule);min-width:64px}
 .bar i{display:block;height:100%;background:var(--ok)}
 .bar i.b40{width:40%}.bar i.b29{width:29%;background:var(--term-mut)}.bar i.b1{width:.9%;background:var(--term-mut)}
 
@@ -224,7 +224,7 @@ img,svg{max-width:100%}
 .chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
 .ctl{margin:0;padding:0;list-style:none}
 .ctl > li{border-top:2px solid var(--ink);padding:14px 0}
-.ctl h4{font-size:18px;line-height:1.4}
+.ctl h3{font-size:18px;line-height:1.4}
 .ctl .cid{font-family:var(--code);font-size:13px;color:var(--acc);font-weight:600;margin-right:6px}
 .ctl dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 14px;margin:10px 0 0;font-size:15px;line-height:1.45}
 .ctl dt{font-family:var(--ui);font-weight:700;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);padding-top:3px}
@@ -238,14 +238,14 @@ img,svg{max-width:100%}
 /* experience */
 .row{display:grid;grid-template-columns:180px minmax(0,1fr);gap:24px;padding:18px 0;border-top:2px solid var(--ink)}
 .row .when{font-family:var(--code);font-size:12.5px;color:var(--mut);line-height:1.6;font-variant-numeric:tabular-nums;padding-top:4px}
-.row h3{font-family:var(--ui);font-weight:700;font-size:20px;line-height:1.25}
+.row h2{font-family:var(--ui);font-weight:700;font-size:20px;line-height:1.25}
 .row .org{font-size:16.5px;margin-top:2px}
 .row ul{margin:8px 0 0;padding:0 0 0 18px;font-size:16.5px;line-height:1.5;color:var(--mut);max-width:44em}
 .row li{margin-top:4px}
 .row li::marker{color:var(--acc)}
 .row p{font-size:16.5px;line-height:1.5;color:var(--mut);margin-top:6px;max-width:44em}
 .skills{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;border-top:2px solid var(--ink);padding-top:18px;margin-top:64px}
-.skills h3{font-family:var(--ui);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+.skills h2{font-family:var(--ui);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;padding:0;list-style:none}
 .tag{font-family:var(--ui);font-weight:500;font-size:12.5px;border:1.5px solid var(--ink);padding:5px 9px;line-height:1.3}
 
@@ -348,7 +348,7 @@ img,svg{max-width:100%}
 .card:hover,.arch:hover{transform:translate(-2px,-2px)}
 .node:hover,.kstep:hover,.pill:hover,.chip:hover{transform:translateY(-2px)}
 .tab{transition:padding .18s ease,background .18s ease}
-.tab:not([aria-current="true"]):hover{padding-top:18px}
+.tab:not([aria-current="page"]):hover{padding-top:18px}
 .msg.cur .shaft{border-top-style:dashed;animation:march .8s linear infinite}
 @keyframes march{to{border-top-color:var(--acc)}}
 .badge{transition:transform .2s ease,border-color .2s ease,color .2s ease}
@@ -382,7 +382,7 @@ code,pre,.out,.dt,.src,.chip,.pill,.sub,.nn,.mnum,.when{font-variant-ligatures:n
 
 @media (min-width:961px){.exh .arch{padding-bottom:96px}}
 .chips{margin-top:18px}
-.card .out .logl.wrap{white-space:pre-wrap;overflow-wrap:anywhere}
+.card .out .logl.pw{white-space:pre-wrap;overflow-wrap:anywhere}
 @media (max-width:960px){
   .exh .g12 > .arch{order:1}.exh .g12 > .out{order:2}.exh .g12 > .txt{order:3}
   .exh .out{margin-top:46px!important}
@@ -393,3 +393,60 @@ code,pre,.out,.dt,.src,.chip,.pill,.sub,.nn,.mnum,.when{font-variant-ligatures:n
   .jk-sq{width:84px;height:84px;top:-24px;right:8px}
   .jk-b{padding-top:48px}
 }
+
+/* clipping fixes. Gradient text (background-clip:text) paints only inside the element's box, so
+   give descenders and the script's swashes room with padding, and cancel it with margin. */
+.sh,.exh-head h2{padding:.06em 0 .24em;margin-top:-.06em}
+.sh{margin-bottom:calc(12px - .24em)}
+.exh-head h2{margin-top:calc(8px - .06em);margin-bottom:-.24em}
+.h-name{padding:.4em .4em .3em .3em;margin:-.4em -.4em calc(-6px - .3em) calc(-8px - .3em)}
+@media (max-width:640px){
+  .h-name{padding-inline:.2em .1em;margin-inline:-.2em -.1em}
+  /* sequence diagram fits the screen instead of scrolling */
+  .seq{min-width:0}
+  .lanehead{margin:0 3px 10px;padding:8px 2px;font-size:12px}
+  .lanehead .sub{font-size:9px}
+  .mrow{min-height:50px}
+  .mlab{font-size:12px;padding:0 3px}
+  .mnum{margin-right:3px}
+  .selfbox{padding:5px 2px}
+  /* logs wrap */
+  .logl{white-space:pre-wrap;overflow-wrap:anywhere}
+}
+
+/* Output tables stack (one block per row, label beside each value) when their panel is too narrow
+   to show every column. Container queries, so this tracks the panel, not the viewport. */
+.out{container-type:inline-size}
+#log{font-size:12px}
+#log th,#log td{padding-right:10px}
+@container (max-width:459px){
+  #sessions,#sessions tbody,#sessions tr{display:block;width:100%}
+  #sessions thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  #sessions tr{padding:8px 0;border-bottom:1px solid var(--term-rule)}
+  #sessions td{display:flex;gap:10px;border:0;padding:2px 0;white-space:normal;overflow-wrap:anywhere;min-width:0}
+  #sessions td:empty{display:none}
+  #sessions td::before{flex:0 0 84px;color:var(--term-mut);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding-top:2px}
+  #sessions td:nth-child(1)::before{content:"id";content:"id" / ""}
+  #sessions td:nth-child(2)::before{content:"family_id";content:"family_id" / ""}
+  #sessions td:nth-child(3)::before{content:"revoked_at";content:"revoked_at" / ""}
+  #sessions td:nth-child(4)::before{content:"reason";content:"reason" / ""}
+}
+@container (max-width:599px){
+  #log,#log tbody,#log tr{display:block;width:100%}
+  #log thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  #log tr{padding:8px 0;border-bottom:1px solid var(--term-rule)}
+  #log td{display:flex;gap:10px;border:0;padding:2px 0;white-space:normal;overflow-wrap:anywhere;min-width:0}
+  #log td:empty{display:none}
+  #log td::before{flex:0 0 84px;color:var(--term-mut);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding-top:2px}
+  #log td:nth-child(1)::before{content:"created_at";content:"created_at" / ""}
+  #log td:nth-child(2)::before{content:"type";content:"type" / ""}
+  #log td:nth-child(3)::before{content:"user";content:"user" / ""}
+  #log td:nth-child(4)::before{content:"ip";content:"ip" / ""}
+  #log td:nth-child(5)::before{content:"meta";content:"meta" / ""}
+}
+
+/* sub-pages: the first section sits under the tabs, and the contact block is the page */
+main > .sect:first-child{padding-top:72px}
+main > .foot{margin-top:72px}
+.mini{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:120px;padding-block:24px 32px;font-size:14px;color:var(--mut)}
+.mini p{margin:0}

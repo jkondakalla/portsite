@@ -1,6 +1,8 @@
-// Browser checks for site/index.html, using Playwright's Chromium:
+// Browser checks for every page in site/, using Playwright's Chromium:
+//   - each tab opens its own page, and only that tab is marked current
 //   - no console errors, page errors, CSP violations or failed requests
 //   - no horizontal page overflow at 360, 768 and 1280 px
+//   - nothing cut off inside a scroll box (tables, logs, the sequence diagram), attacker steps included
 //   - axe-core: no violations, with and without JavaScript, and under light and dark system settings
 //   - the no-JS fallbacks are visible when scripts are off
 //   - keyboard: the skip link comes first, and every focused element shows a visible focus ring
@@ -8,7 +10,7 @@
 //   - the diagrams do what the copy says (attacker revokes fam_7; user 3 sees only their rows)
 import { chromium } from 'playwright';
 import { AxeBuilder } from '@axe-core/playwright';
-import { start } from './serve.mjs';
+import { start, PAGES } from './serve.mjs';
 
 const { server, url } = await start();
 const browser = await chromium.launch();
@@ -16,7 +18,7 @@ let failures = 0;
 const fail = (msg) => { failures++; console.error(`  FAIL ${msg}`); };
 const pass = (msg) => console.log(`  ok   ${msg}`);
 
-async function open({ width = 1280, js = true, scheme = 'dark', motion = 'no-preference' } = {}) {
+async function open({ path = '/', width = 1280, js = true, scheme = 'dark', motion = 'no-preference' } = {}) {
   // "No JS" means the site's script never runs. The browser keeps JS on so axe can run in the page.
   const ctx = await browser.newContext({ viewport: { width, height: 900 }, colorScheme: scheme, reducedMotion: motion });
   const page = await ctx.newPage();
@@ -26,7 +28,7 @@ async function open({ width = 1280, js = true, scheme = 'dark', motion = 'no-pre
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
   page.on('requestfailed', (r) => errors.push(`requestfailed: ${r.url()} ${r.failure()?.errorText}`));
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`HTTP ${r.status()}: ${r.url()}`); });
-  await page.goto(url, { waitUntil: 'load' });
+  await page.goto(new URL(path, url).href, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts.ready);
   return { ctx, page, errors };
 }
@@ -36,12 +38,27 @@ async function overflow(page) {
     const W = document.documentElement.clientWidth, out = [];
     const scrollsX = (n) => { for (let p = n.parentElement; p; p = p.parentElement) { const s = getComputedStyle(p); if (/(auto|scroll|hidden|clip)/.test(s.overflowX) && p !== document.body && p !== document.documentElement) return true; } return false; };
     for (const n of document.querySelectorAll('body *')) {
-      const r = n.getBoundingClientRect();
+      // .h-name carries wide transparent padding so its gradient text isn't clipped; measure its text, not that box
+      let r = n.getBoundingClientRect();
+      if (n.classList.contains('h-name')) { const g = document.createRange(); g.selectNodeContents(n); r = g.getBoundingClientRect(); }
       if (!r.width || getComputedStyle(n).visibility === 'hidden' || n.closest('[hidden]')) continue;
       if (n.closest('.vh') || n.classList.contains('skip')) continue;
       if ((r.right > W + 1 || r.left < -1) && !scrollsX(n)) out.push(`${n.tagName.toLowerCase()}.${[...n.classList].join('.')} [${Math.round(r.left)}..${Math.round(r.right)}] > ${W}`);
     }
     return { W, sw: document.documentElement.scrollWidth, out: out.slice(0, 8) };
+  });
+}
+
+// Content wider than its own box: a scroll region a visitor must drag, or text clipped by overflow.
+async function cutoff(page) {
+  return page.evaluate(() => {
+    const out = [];
+    for (const n of document.querySelectorAll('body *')) {
+      if (n.offsetWidth <= 1 || n.closest('[hidden], .vh')) continue; // 1px: visually hidden
+      if (!/(auto|scroll|hidden|clip)/.test(getComputedStyle(n).overflowX)) continue;
+      if (n.scrollWidth > n.clientWidth + 1) out.push(`${n.tagName.toLowerCase()}.${[...n.classList].join('.')} ${n.scrollWidth} > ${n.clientWidth}`);
+    }
+    return out.slice(0, 8);
   });
 }
 
@@ -52,17 +69,42 @@ async function axe(page, label) {
   } else pass(`${label} axe: 0 violations (${r.passes.length} rules passed, ${r.incomplete.length} need review)`);
 }
 
-// 1. widths x schemes, with JS
-for (const scheme of ['dark', 'light']) {
+// 0. the tabs: each one is a real page
+{
+  const { ctx, page } = await open();
+  for (const path of PAGES) {
+    await page.locator(`nav.tabs a.tab[href="${path}"]`).click();
+    await page.waitForURL(new URL(path, url).href);
+    const cur = await page.locator('nav.tabs [aria-current="page"]').evaluateAll((a) => a.map((x) => x.getAttribute('href')));
+    const h1 = await page.locator('h1').count();
+    const canon = await page.getAttribute('link[rel="canonical"]', 'href');
+    const title = await page.title();
+    if (cur.length !== 1 || cur[0] !== path) fail(`${path} current tab is ${JSON.stringify(cur)}`);
+    else if (h1 !== 1) fail(`${path} has ${h1} h1 elements`);
+    else if (canon !== `https://jaaggruthkondakalla.com${path}`) fail(`${path} canonical is ${canon}`);
+    else pass(`${path} opens from its tab ("${title}")`);
+  }
+  await ctx.close();
+}
+
+// 1. every page x widths x schemes, with JS
+for (const path of PAGES) for (const scheme of ['dark', 'light']) {
   for (const width of [360, 768, 1280]) {
-    const label = `${width}px ${scheme}`;
-    const { ctx, page, errors } = await open({ width, scheme });
+    const label = `${path} ${width}px ${scheme}`;
+    const { ctx, page, errors } = await open({ path, width, scheme });
     const o = await overflow(page);
     if (o.sw > o.W || o.out.length) fail(`${label} horizontal overflow: scrollWidth ${o.sw} > ${o.W}; ${o.out.join('; ')}`);
     else pass(`${label} no horizontal overflow`);
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     if (bg !== 'rgb(12, 18, 20)') fail(`${label} body background is ${bg}`); else pass(`${label} dark background holds`);
     await axe(page, label);
+    const cut = await cutoff(page); // after axe: the clicks scroll and start reveal animations
+    if (path === '/jkos/') {
+      await page.getByRole('button', { name: 'Attacker reuses a stolen refresh token' }).click();
+      cut.push(...(await cutoff(page)).map((c) => `attacker: ${c}`));
+      await page.getByRole('button', { name: 'Attacker reuses a stolen refresh token' }).click();
+    }
+    if (cut.length) fail(`${label} content cut off: ${cut.join('; ')}`); else pass(`${label} nothing cut off in scroll boxes`);
     if (errors.length) errors.forEach((e) => fail(`${label} ${e}`)); else pass(`${label} no console errors or failed requests`);
     await ctx.close();
   }
@@ -70,22 +112,29 @@ for (const scheme of ['dark', 'light']) {
 
 // 2. no JavaScript: fallbacks visible, still accessible, no overflow
 for (const width of [360, 1280]) {
-  const label = `${width}px no-JS`;
-  const { ctx, page, errors } = await open({ width, js: false });
-  const vis = await page.evaluate(() => [...document.querySelectorAll('ol.fb')].map((o) => o.offsetHeight > 0));
-  if (vis.length !== 5 || vis.some((v) => !v)) fail(`${label} fallbacks visible: ${JSON.stringify(vis)}`); else pass(`${label} all 5 diagram fallbacks visible`);
-  const ctl = await page.locator('ol.ctl > li:visible').count();
-  if (ctl !== 22) fail(`${label} controls listed: ${ctl}`); else pass(`${label} all 22 controls listed`);
-  const o = await overflow(page);
-  if (o.sw > o.W || o.out.length) fail(`${label} overflow: ${o.out.join('; ')}`); else pass(`${label} no horizontal overflow`);
-  await axe(page, label);
-  if (errors.length) errors.forEach((e) => fail(`${label} ${e}`));
-  await ctx.close();
+  let fb = 0, ctl = 0;
+  for (const path of PAGES) {
+    const label = `${path} ${width}px no-JS`;
+    const { ctx, page, errors } = await open({ path, width, js: false });
+    const vis = await page.evaluate(() => [...document.querySelectorAll('ol.fb')].map((o) => o.offsetHeight > 0));
+    if (vis.some((v) => !v)) fail(`${label} fallbacks visible: ${JSON.stringify(vis)}`);
+    fb += vis.length;
+    ctl += await page.locator('ol.ctl > li:visible').count();
+    const o = await overflow(page);
+    if (o.sw > o.W || o.out.length) fail(`${label} overflow: ${o.out.join('; ')}`); else pass(`${label} no horizontal overflow`);
+    const cut = await cutoff(page);
+    if (cut.length) fail(`${label} content cut off: ${cut.join('; ')}`); else pass(`${label} nothing cut off in scroll boxes`);
+    await axe(page, label);
+    if (errors.length) errors.forEach((e) => fail(`${label} ${e}`));
+    await ctx.close();
+  }
+  if (fb !== 5) fail(`${width}px no-JS: ${fb} diagram fallbacks, expected 5`); else pass(`${width}px no-JS all 5 diagram fallbacks visible`);
+  if (ctl !== 22) fail(`${width}px no-JS controls listed: ${ctl}`); else pass(`${width}px no-JS all 22 controls listed`);
 }
 
 // 3. keyboard
 {
-  const { ctx, page } = await open({ width: 1280 });
+  const { ctx, page } = await open({ path: '/jkos/', width: 1280 });
   await page.keyboard.press('Tab');
   const first = await page.evaluate(() => document.activeElement.className);
   if (first !== 'skip') fail(`first Tab lands on "${first}", expected the skip link`); else pass('first Tab is the skip link');
@@ -116,6 +165,7 @@ for (const width of [360, 1280]) {
   await page.click('[data-view="3"]');
   const rows = await page.locator('#log tbody tr:visible').count();
   if (rows !== 2) fail(`user 3 view shows ${rows} rows, expected 2`); else pass('user 3 view shows only user 3\'s 2 rows');
+  await page.goto(new URL('/projects/', url).href, { waitUntil: 'load' });
   await page.click('.chip:has-text("CM-3")');
   const shown = await page.locator('ol.ctl > li:visible').getAttribute('data-id');
   if (shown !== 'CM-3') fail(`control picker shows ${shown}`); else pass('control picker shows the chosen control');
@@ -124,7 +174,7 @@ for (const width of [360, 1280]) {
 
 // 4. reduced motion
 {
-  const { ctx, page } = await open({ width: 1280, motion: 'reduce' });
+  const { ctx, page } = await open({ path: '/jkos/', width: 1280, motion: 'reduce' });
   const anims = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running').length);
   if (anims) fail(`reduced motion: ${anims} animations running`); else pass('reduced motion: no running animations');
   const smooth = await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior);
